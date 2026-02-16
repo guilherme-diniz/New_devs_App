@@ -21,6 +21,7 @@ export const PropertySelector: React.FC<PropertySelectorProps> = ({
       try {
         const response = await secureProperties.getAll();
         setProperties(response.data);
+        onSelect(response.data[0].id);
       } catch (err) {
         setError("Failed to load properties");
         console.error(err);

@@ -38,53 +38,54 @@ async def calculate_total_revenue(property_id: str, tenant_id: str) -> Dict[str,
     try:
         # Import database pool
         from app.core.database_pool import DatabasePool
+        from sqlalchemy import text
+
         
         # Initialize pool if needed
         db_pool = DatabasePool()
         await db_pool.initialize()
         
-        if db_pool.session_factory:
-            async with db_pool.get_session() as session:
-                # Use SQLAlchemy text for raw SQL
-                from sqlalchemy import text
-                
-                query = text("""
-                    SELECT 
-                        property_id,
-                        SUM(total_amount) as total_revenue,
-                        COUNT(*) as reservation_count
-                    FROM reservations 
-                    WHERE property_id = :property_id AND tenant_id = :tenant_id
-                    GROUP BY property_id
-                """)
-                
-                result = await session.execute(query, {
-                    "property_id": property_id, 
-                    "tenant_id": tenant_id
-                })
-                row = result.fetchone()
-                
-                if row:
-                    total_revenue = Decimal(str(row.total_revenue))
-                    return {
-                        "property_id": property_id,
-                        "tenant_id": tenant_id,
-                        "total": str(total_revenue),
-                        "currency": "USD", 
-                        "count": row.reservation_count
-                    }
-                else:
-                    # No reservations found for this property
-                    return {
-                        "property_id": property_id,
-                        "tenant_id": tenant_id,
-                        "total": "0.00",
-                        "currency": "USD",
-                        "count": 0
-                    }
-        else:
+        if not db_pool.session_factory:
             raise Exception("Database pool not available")
-            
+
+        session = await db_pool.get_session()
+        try:
+            query = text("""
+                SELECT 
+                    property_id,
+                    SUM(total_amount) as total_revenue,
+                    COUNT(*) as reservation_count
+                FROM reservations 
+                WHERE property_id = :property_id AND tenant_id = :tenant_id
+                GROUP BY property_id
+            """)
+            result = await session.execute(query, {
+                "property_id": property_id, 
+                "tenant_id": tenant_id
+            })
+            row = result.fetchone()
+
+            if row:
+                total_revenue = Decimal(str(row.total_revenue))
+                return {
+                    "property_id": property_id,
+                    "tenant_id": tenant_id,
+                    "total": str(total_revenue),
+                    "currency": "USD", 
+                    "count": row.reservation_count
+                }
+            else:
+                # No reservations found for this property
+                return {
+                    "property_id": property_id,
+                    "tenant_id": tenant_id,
+                    "total": "0.00",
+                    "currency": "USD",
+                    "count": 0
+                }
+        
+        finally:
+            await session.close()        
     except Exception as e:
         print(f"Database error for {property_id} (tenant: {tenant_id}): {e}")
         
