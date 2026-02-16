@@ -22,6 +22,8 @@ sqlalchemy>=2.0.0
 supabase
 tenacity>=8.0.0
 uvicorn[standard]
+pytest
+pytest-asyncio
 wheel==0.45.1
 loguru
 redis>=5.0.0
