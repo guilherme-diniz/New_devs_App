@@ -1,5 +1,7 @@
 {
-  "editor.rulers": [150],
+  "editor.rulers": [
+    150
+  ],
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
@@ -17,5 +19,18 @@
   "python.analysis.typeCheckingMode": "basic", // Ensures type checking is enabled
   "python.analysis.autoImportCompletions": true, // Helps with auto-imports
   "git.ignoreLimitWarning": true,
-  "python.defaultInterpreterPath": "backend/.venv/bin/python"
+  "python.defaultInterpreterPath": "backend/.venv/bin/python",
+  "cursorpyright.analysis.autoImportCompletions": true,
+  "cursorpyright.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "error",
+    "reportMissingParameterType": "none",
+    "reportUnknownArgumentType": "none",
+    "reportUnknownVariableType": "none",
+    "reportMissingTypeStubs": "none",
+    "reportUnknownMemberType": "none",
+    "reportCallIssue": "none",
+    "reportArgumentType": "none",
+    "reportAssignmentType": "none"
+  },
+  "cursorpyright.analysis.typeCheckingMode": "basic"
 }
